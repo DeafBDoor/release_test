@@ -1,0 +1,16 @@
+name: Clean for release action
+run-name: clean_for_release
+on: 
+  release:
+    types: [published]
+jobs:
+  Remove-Files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Delete documentation directories
+        run: rm -rf unwanted_dir
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
