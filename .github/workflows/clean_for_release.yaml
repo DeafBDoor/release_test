@@ -2,7 +2,7 @@ name: Clean for release action
 run-name: clean_for_release
 on: 
   release:
-    types: [published]
+      types: [published]
 jobs:
   Remove-Files:
     runs-on: ubuntu-latest
