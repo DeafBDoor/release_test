@@ -1,16 +1,44 @@
 name: Clean for release action
 run-name: clean_for_release
 on: 
-  release:
-      types: [published]
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Associated tag to the release version'
 jobs:
   Remove-Files:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version_tag: ${{ inputs.version_tag }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Change to release branch
+        run: git checkout -b "releases/${{ inputs.version_tag }}"
       - name: Delete documentation directories
         run: rm -rf unwanted_dir
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
+      #- name: Upload cleaned workspace to next job
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: cleaned_artifact
+      #    path: ${{ github.workspace }}
+      - name: Set gitconfig
+        run: |
+           git config user.name Test
+           git config user.email test@example.com
+      - name: Add dir
+        run: git add unwanted_dir
+      - name: Commit release
+        run: git commit -m "release ${{ inputs.version_tag }}"
+      - name: Add tag
+        run: git tag -m "Release tag ${{ inputs.version_tag }}" ${{ inputs.version_tag }}
+      - name: Push to repo
+        run: git push --follow-tags origin "releases/${{ inputs.version_tag }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
